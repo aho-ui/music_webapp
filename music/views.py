@@ -10,6 +10,8 @@ from music.serializers import (
     PlaylistSerializer, PlaylistSongSerializer, ListeningHistorySerializer,
     LikeSerializer, RecommendationSerializer
 )
+from django.conf import settings
+import openai
 
 
 class BaseAPIView(APIView):
@@ -114,3 +116,24 @@ class LikeListCreateView(BaseAPIView):
 class RecommendationListCreateView(BaseAPIView):
     model = Recommendation
     serializer_class = RecommendationSerializer
+
+class TextModalAPIView(APIView):
+    def post(self, request):
+        user_input = request.data.get("message")
+        if not user_input:
+            return Response({"error": "No input provided"}, status=400)
+        
+        openai.api_key = settings.OPENAI_API_KEY
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": user_input}]
+            # role:
+            # System = behavior ex: you are a priate
+            # User = hows the weather
+            # assistant = follows up on it
+        )
+
+        reply = response["choices"][0]["message"]["content"]
+        return Response({"reply": reply})
+    
+
