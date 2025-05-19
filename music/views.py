@@ -12,6 +12,9 @@ from music.serializers import (
 )
 from django.conf import settings
 import openai
+from datetime import datetime
+from music.functions.functions import get_current_time, say_hello
+from music.functions.openai_schema import functions
 
 
 class BaseAPIView(APIView):
@@ -117,6 +120,8 @@ class RecommendationListCreateView(BaseAPIView):
     model = Recommendation
     serializer_class = RecommendationSerializer
 
+
+
 class TextModalAPIView(APIView):
     def post(self, request):
         user_input = request.data.get("message")
@@ -126,14 +131,30 @@ class TextModalAPIView(APIView):
         openai.api_key = settings.OPENAI_API_KEY
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": user_input}]
-            # role:
-            # System = behavior ex: you are a priate
-            # User = hows the weather
-            # assistant = follows up on it
+            messages=[{"role": "user", "content": user_input}],
+            functions= functions,
+                function_call="auto"
         )
+        
+        available_functions = {
+        "get_current_time": get_current_time,
+        "say_hello": say_hello,
+        }
+        choice = response.choices[0]
+        if "function_call" in choice["message"]:
+            function_name = choice["message"]["function_call"]["name"]
 
-        reply = response["choices"][0]["message"]["content"]
+            if function_name in available_functions:
+                result = available_functions[function_name]()
+                return Response({"function_result": result})
+
+        reply = choice["message"]["content"]
         return Response({"reply": reply})
-    
+
+         
+
+
+
+
+        
 
