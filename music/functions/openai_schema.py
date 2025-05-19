@@ -17,4 +17,18 @@ functions = [
             "required": [],
         },
     },
+    {
+        "name": "get_song",
+        "description": "Find a song by title or mood",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The title or mood to look for"
+                }
+            },
+            "required": ["query"]
+        }
+    },
 ]

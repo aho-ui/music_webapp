@@ -11,9 +11,9 @@ from music.serializers import (
     LikeSerializer, RecommendationSerializer
 )
 from django.conf import settings
-import openai
+import openai, json
 from datetime import datetime
-from music.functions.functions import get_current_time, say_hello
+from music.functions.functions import get_current_time, say_hello, get_song
 from music.functions.openai_schema import functions
 
 
@@ -139,20 +139,27 @@ class TextModalAPIView(APIView):
         available_functions = {
         "get_current_time": get_current_time,
         "say_hello": say_hello,
+        "get_song":get_song,
         }
         choice = response.choices[0]
         if "function_call" in choice["message"]:
             function_name = choice["message"]["function_call"]["name"]
+            arguments_str = choice["message"]["function_call"].get("arguments")
 
             if function_name in available_functions:
-                result = available_functions[function_name]()
+                if arguments_str:
+                    arguments = json.loads(arguments_str)
+                    result = available_functions[function_name](**arguments)
+                else:
+                    result = available_functions[function_name]()
                 return Response({"function_result": result})
 
+    
         reply = choice["message"]["content"]
         return Response({"reply": reply})
 
-         
 
+         
 
 
 
