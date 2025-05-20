@@ -20,10 +20,13 @@
 # exec(open("scripts/import.py").read())
 
 
-from music.factories import UserFactory, SongFactory, RecommendationFactory
+from music.factories import ArtistFactory, UserFactory, SongFactory, RecommendationFactory
 
 for _ in range(10):
     UserFactory()
+
+for _ in range(50):
+    ArtistFactory()
 
 for _ in range(20):
     SongFactory()

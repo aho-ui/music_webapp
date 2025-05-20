@@ -8,7 +8,8 @@ from music.views import (
     PlaylistSongListCreateView, PlaylistSongDetailView,
     ListeningHistoryListCreateView,
     LikeListCreateView,
-    RecommendationListCreateView
+    RecommendationListCreateView,
+    TextModalAPIView,
 )
 
 urlpatterns = [
@@ -36,4 +37,6 @@ urlpatterns = [
     path("likes/", LikeListCreateView.as_view()),
    
     path("recommendations/", RecommendationListCreateView.as_view()),
+    path("textmodal/", TextModalAPIView.as_view()),
+
 ]

@@ -10,6 +10,11 @@ from music.serializers import (
     PlaylistSerializer, PlaylistSongSerializer, ListeningHistorySerializer,
     LikeSerializer, RecommendationSerializer
 )
+from django.conf import settings
+import openai, json
+from datetime import datetime
+from music.functions.functions import get_current_time, say_hello, get_song
+from music.functions.openai_schema import functions
 
 
 class BaseAPIView(APIView):
@@ -114,3 +119,49 @@ class LikeListCreateView(BaseAPIView):
 class RecommendationListCreateView(BaseAPIView):
     model = Recommendation
     serializer_class = RecommendationSerializer
+
+
+
+class TextModalAPIView(APIView):
+    def post(self, request):
+        user_input = request.data.get("message")
+        if not user_input:
+            return Response({"error": "No input provided"}, status=400)
+        
+        openai.api_key = settings.OPENAI_API_KEY
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": user_input}],
+            functions= functions,
+                function_call="auto"
+        )
+        
+        available_functions = {
+        "get_current_time": get_current_time,
+        "say_hello": say_hello,
+        "get_song":get_song,
+        }
+        choice = response.choices[0]
+        if "function_call" in choice["message"]:
+            function_name = choice["message"]["function_call"]["name"]
+            arguments_str = choice["message"]["function_call"].get("arguments")
+
+            if function_name in available_functions:
+                if arguments_str:
+                    arguments = json.loads(arguments_str)
+                    result = available_functions[function_name](**arguments)
+                else:
+                    result = available_functions[function_name]()
+                return Response({"function_result": result})
+
+    
+        reply = choice["message"]["content"]
+        return Response({"reply": reply})
+
+
+         
+
+
+
+        
+
