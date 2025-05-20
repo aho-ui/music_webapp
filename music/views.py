@@ -128,10 +128,13 @@ class TextModalAPIView(APIView):
         if not user_input:
             return Response({"error": "No input provided"}, status=400)
         
+        chat_history = request.session.get("chat_history", [])
+        chat_history.append({"role": "user", "content": user_input})
+
         openai.api_key = settings.OPENAI_API_KEY
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": user_input}],
+            messages=chat_history,
             functions= functions,
                 function_call="auto"
         )

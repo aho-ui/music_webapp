@@ -14,6 +14,7 @@ def get_song(query):
         return {
             "title": song.title,
             "artist": song.artist.name if song.artist else "",
+            "Genre": song.genre if song.genre else "",
             "file_path": song.audio_url
         }
     return {"error": "Song not found"}
