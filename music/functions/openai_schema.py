@@ -10,7 +10,7 @@ functions = [
     },
     {
         "name": "say_hello",
-        "description": "Return a friendly greeting",
+        "description": "only use this if the user asks for it specifically",
         "parameters": {
             "type": "object",
             "properties": {},
@@ -19,7 +19,7 @@ functions = [
     },
     {
         "name": "get_song",
-        "description": "Find a song by title or mood",
+        "description": "Choose one song from the list that fits the user's mood",
         "parameters": {
             "type": "object",
             "properties": {
@@ -29,6 +29,9 @@ functions = [
                 }
             },
             "required": ["query"]
-        }
+        },
     },
+    
+
+    
 ]
